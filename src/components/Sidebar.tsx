@@ -14,7 +14,8 @@ import {
   DollarSign,
   Receipt,
   CreditCard as CreditCardIcon,
-  RefreshCcw
+  RefreshCcw,
+  TicketIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
+    { id: 'tickets', label: 'Tickets', icon: TicketIcon },
     { 
       id: 'finance', 
       label: 'Finance', 

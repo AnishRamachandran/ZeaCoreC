@@ -17,6 +17,7 @@ import Settings from './components/Settings';
 import UserManagement from './components/UserManagement';
 import UserProfile from './components/UserProfile';
 import AppDashboard from './components/AppDashboard';
+import TicketModule from './components/tickets/TicketModule';
 import InvoicesManagement from './components/finance/InvoicesManagement';
 import PaymentsManagement from './components/finance/PaymentsManagement';
 import RefundsManagement from './components/finance/RefundsManagement';
@@ -29,6 +30,7 @@ function App() {
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -102,6 +104,8 @@ function App() {
         return <RefundsManagement />;
       case 'users':
         return <UserManagement />;
+      case 'tickets':
+        return <TicketModule />;
       case 'settings':
         return <Settings />;
       case 'profile':
