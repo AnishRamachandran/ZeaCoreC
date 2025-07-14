@@ -24,7 +24,6 @@ import RefundsManagement from './components/finance/RefundsManagement';
 import InvoiceDetails from './components/finance/InvoiceDetails';
 import PaymentDetails from './components/finance/PaymentDetails';
 import FinanceDashboard from './components/finance/FinanceDashboard';
-import TicketModule from './components/tickets/TicketModule';
 import InvoicesManagement from './components/finance/InvoicesManagement';
 import PaymentsManagement from './components/finance/PaymentsManagement';
 import RefundsManagement from './components/finance/RefundsManagement';
