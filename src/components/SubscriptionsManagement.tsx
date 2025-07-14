@@ -149,7 +149,10 @@ const SubscriptionsManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  App & Plan
+                  App
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plan
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Customer
@@ -166,9 +169,6 @@ const SubscriptionsManagement: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Period
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Features
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -177,7 +177,11 @@ const SubscriptionsManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{subscription.app_name}</div>
-                      <div className="text-sm text-gray-500">{subscription.plan_name}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{subscription.plan_name}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -214,20 +218,6 @@ const SubscriptionsManagement: React.FC = () => {
                     <div>
                       <div>{new Date(subscription.start_date).toLocaleDateString()}</div>
                       <div className="text-xs">to {new Date(subscription.end_date).toLocaleDateString()}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1 max-w-xs">
-                      {subscription.enabled_features.slice(0, 2).map((feature: string, index: number) => (
-                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                          {feature}
-                        </span>
-                      ))}
-                      {subscription.enabled_features.length > 2 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          +{subscription.enabled_features.length - 2}
-                        </span>
-                      )}
                     </div>
                   </td>
                 </tr>
