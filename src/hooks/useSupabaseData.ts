@@ -119,9 +119,9 @@ export function useCustomerSubscriptions() {
         .from('customer_subscriptions')
         .select(`
           *,
-          apps!inner(name),
-          subscription_plans!inner(name),
-          customers!inner(name, company)
+          apps!inner(name, logo_url),
+          subscription_plans!inner(name, is_popular, icon_url),
+          customers!inner(name, company, logo_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -130,9 +130,13 @@ export function useCustomerSubscriptions() {
       const subscriptionsWithDetails = (data || []).map(sub => ({
         ...sub,
         app_name: (sub.apps as any).name,
+        app_logo_url: (sub.apps as any).logo_url,
         plan_name: (sub.subscription_plans as any).name,
+        is_popular: (sub.subscription_plans as any).is_popular,
+        plan_icon_url: (sub.subscription_plans as any).icon_url,
         customer_name: (sub.customers as any).name,
-        customer_company: (sub.customers as any).company
+        customer_company: (sub.customers as any).company,
+        customer_logo_url: (sub.customers as any).logo_url
       }));
       
       setSubscriptions(subscriptionsWithDetails);

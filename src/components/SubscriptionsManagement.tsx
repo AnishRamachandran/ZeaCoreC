@@ -3,6 +3,8 @@ import { Plus, Search, Calendar, DollarSign, User, Package, Loader2 } from 'luci
 import { useCustomerSubscriptions } from '../hooks/useSupabaseData';
 import AddSubscriptionForm from './forms/AddSubscriptionForm';
 import StatusIcon from './common/StatusIcon';
+import AppLogo from './common/AppLogo';
+import CompanyLogo from './common/CompanyLogo';
 
 const SubscriptionsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -176,22 +178,38 @@ const SubscriptionsManagement: React.FC = () => {
                 <tr key={subscription.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{subscription.app_name}</div>
+                      <div className="flex items-center">
+                        <AppLogo 
+                          src={subscription.app_logo_url} 
+                          appName={subscription.app_name} 
+                          size="sm" 
+                          className="mr-3"
+                        />
+                        <div className="text-sm font-medium text-gray-900">{subscription.app_name}</div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{subscription.plan_name}</div>
+                      <div className="flex items-center">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white mr-3 ${
+                          subscription.is_popular ? 'bg-gradient-to-br from-yellow-400 to-yellow-500' : 'bg-gradient-to-br from-blue-400 to-blue-500'
+                        }`}>
+                          <span className="text-xs font-bold">{subscription.plan_name.substring(0, 2).toUpperCase()}</span>
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">{subscription.plan_name}</div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-8 w-8">
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <User className="h-4 w-4 text-blue-600" />
-                        </div>
-                      </div>
-                      <div className="ml-3">
+                      <CompanyLogo 
+                        src={subscription.customer_logo_url} 
+                        companyName={subscription.customer_company} 
+                        size="sm" 
+                        className="mr-3"
+                      />
+                      <div>
                         <div className="text-sm font-medium text-gray-900">{subscription.customer_company}</div>
                       </div>
                     </div>
