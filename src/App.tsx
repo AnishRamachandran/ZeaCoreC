@@ -116,38 +116,8 @@ function App() {
         return <RefundsManagement />;
       case 'tickets':
         return <TicketModule />;
-      case 'invoices':
-        return <InvoicesManagement onInvoiceSelect={(invoiceId) => {
-          setSelectedInvoiceId(invoiceId);
-          setActiveTab('invoice-details');
-        }} />;
-      case 'invoice-details':
-        return <InvoiceDetails 
-          invoiceId={selectedInvoiceId} 
-          onBack={() => {
-            setActiveTab('invoices');
-            setSelectedInvoiceId(null);
-          }}
-        />;
-      case 'payments':
-        return <PaymentsManagement onPaymentSelect={(paymentId) => {
-          setSelectedPaymentId(paymentId);
-          setActiveTab('payment-details');
-        }} />;
-      case 'payment-details':
-        return <PaymentDetails 
-          paymentId={selectedPaymentId} 
-          onBack={() => {
-            setActiveTab('payments');
-            setSelectedPaymentId(null);
-          }}
-        />;
-      case 'refunds':
-        return <RefundsManagement />;
       case 'users':
         return <UserManagement />;
-      case 'tickets':
-        return <TicketModule />;
       case 'settings':
         return <Settings />;
       case 'profile':

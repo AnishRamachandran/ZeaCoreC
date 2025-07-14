@@ -16,11 +16,6 @@ import {
   CreditCard as CreditCardIcon,
   RefreshCcw,
   TicketIcon
-  DollarSign,
-  Receipt,
-  CreditCard as CreditCardIcon,
-  RefreshCcw,
-  TicketIcon
 } from 'lucide-react';
 
 interface SidebarProps {
