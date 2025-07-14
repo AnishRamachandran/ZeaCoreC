@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Calendar, DollarSign, User, Package, Loader2 } from 'lucide-react';
+import { Plus, Search, Calendar, DollarSign, User, Package, Loader2, Edit, Eye } from 'lucide-react';
 import { useCustomerSubscriptions } from '../hooks/useSupabaseData';
 import AddSubscriptionForm from './forms/AddSubscriptionForm';
+import EditSubscriptionForm from './forms/EditSubscriptionForm';
 import StatusIcon from './common/StatusIcon';
 import AppLogo from './common/AppLogo';
 import CompanyLogo from './common/CompanyLogo';
@@ -10,6 +11,8 @@ const SubscriptionsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
   const { subscriptions, loading, error, refetch } = useCustomerSubscriptions();
 
   if (loading) {
@@ -42,6 +45,11 @@ const SubscriptionsManagement: React.FC = () => {
 
   const handleAddSuccess = () => {
     refetch();
+  };
+  
+  const handleEditSubscription = (subscription: any) => {
+    setSelectedSubscription(subscription);
+    setShowEditForm(true);
   };
 
   return (
@@ -171,6 +179,9 @@ const SubscriptionsManagement: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Period
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -238,6 +249,23 @@ const SubscriptionsManagement: React.FC = () => {
                       <div className="text-xs">to {new Date(subscription.end_date).toLocaleDateString()}</div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleEditSubscription(subscription)}
+                        className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                        title="Edit Subscription"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button 
+                        className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -257,6 +285,16 @@ const SubscriptionsManagement: React.FC = () => {
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
         onSuccess={handleAddSuccess}
+      />
+      
+      <EditSubscriptionForm
+        isOpen={showEditForm}
+        onClose={() => setShowEditForm(false)}
+        onSuccess={() => {
+          setShowEditForm(false);
+          refetch();
+        }}
+        subscription={selectedSubscription}
       />
     </div>
   );
