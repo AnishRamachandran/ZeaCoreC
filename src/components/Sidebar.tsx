@@ -28,7 +28,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
-    { id: 'tickets', label: 'Tickets', icon: TicketIcon },
     { 
       id: 'finance', 
       label: 'Finance', 
@@ -40,16 +39,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       ]
     },
     { id: 'tickets', label: 'Tickets', icon: TicketIcon },
-    { 
-      id: 'finance', 
-      label: 'Finance', 
-      icon: DollarSign,
-      submenu: [
-        { id: 'invoices', label: 'Invoices', icon: Receipt },
-        { id: 'payments', label: 'Payments', icon: CreditCardIcon },
-        { id: 'refunds', label: 'Refunds', icon: RefreshCcw }
-      ]
-    },
     { id: 'feature-control', label: 'Feature Control', icon: Shield },
     { 
       id: 'apps', 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import TicketDashboard from './TicketDashboard';
 import TicketList from './TicketList';
 import TicketDetails from './TicketDetails';

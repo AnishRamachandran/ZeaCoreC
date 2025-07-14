@@ -21,7 +21,7 @@ import {
 import { useTickets } from '../../hooks/useTickets';
 import { useCustomers, useApps } from '../../hooks/useSupabaseData';
 import { useCurrentUserProfile } from '../../hooks/useUserManagement';
-import AddTicketForm from '../forms/AddTicketForm';
+import AddTicketForm from './AddTicketForm';
 import { useToast } from '../../context/ToastContext';
 
 interface TicketListProps {
