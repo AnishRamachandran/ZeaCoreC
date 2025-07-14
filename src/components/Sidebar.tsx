@@ -16,6 +16,11 @@ import {
   CreditCard as CreditCardIcon,
   RefreshCcw,
   TicketIcon
+  DollarSign,
+  Receipt,
+  CreditCard as CreditCardIcon,
+  RefreshCcw,
+  TicketIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +33,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
+    { id: 'tickets', label: 'Tickets', icon: TicketIcon },
+    { 
+      id: 'finance', 
+      label: 'Finance', 
+      icon: DollarSign,
+      submenu: [
+        { id: 'invoices', label: 'Invoices', icon: Receipt },
+        { id: 'payments', label: 'Payments', icon: CreditCardIcon },
+        { id: 'refunds', label: 'Refunds', icon: RefreshCcw }
+      ]
+    },
     { id: 'tickets', label: 'Tickets', icon: TicketIcon },
     { 
       id: 'finance', 

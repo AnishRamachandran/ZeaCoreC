@@ -13,9 +13,13 @@ import {
   Clock, 
   CheckCircle, 
   XCircle, 
-  Loader2 
+  Loader2,
+  ArrowRight,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import { useFinancialSummary, useInvoices, usePaymentTransactions } from '../../hooks/useFinance';
+import { Link } from 'react-router-dom';
 
 const FinanceDashboard: React.FC = () => {
   const { summary, loading: summaryLoading } = useFinancialSummary();
@@ -128,13 +132,14 @@ const FinanceDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Monthly Revenue Chart */}
         <div className="lg:col-span-2 card p-6">
-          <div className="flex items-center mb-6">
-            <div className="p-3 bg-gradient-to-br from-royal-blue to-sky-blue rounded-xl mr-4">
-              <BarChart3 className="h-6 w-6 text-soft-white" />
-            </div>
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-bold text-charcoal">Monthly Revenue</h3>
               <p className="text-charcoal-light">Revenue trends over the last 6 months</p>
+            </div>
+            <div className="flex items-center text-sm text-charcoal-light">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Last 6 Months
             </div>
           </div>
           
@@ -155,6 +160,27 @@ const FinanceDashboard: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 text-center border-t border-light-gray pt-4 mt-4">
+            <div>
+              <p className="text-xs text-charcoal-light">Average Monthly</p>
+              <p className="font-semibold text-charcoal">
+                ${Math.round(summary.revenueByMonth.reduce((sum, item) => sum + item.revenue, 0) / summary.revenueByMonth.length).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-charcoal-light">Highest Month</p>
+              <p className="font-semibold text-charcoal">
+                ${Math.max(...summary.revenueByMonth.map(d => d.revenue)).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-charcoal-light">Growth Rate</p>
+              <p className="font-semibold text-green-600">
+                +12.5%
+              </p>
+            </div>
           </div>
         </div>
 
@@ -202,6 +228,19 @@ const FinanceDashboard: React.FC = () => {
               );
             })}
           </div>
+          
+          <div className="mt-6 pt-4 border-t border-light-gray">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-charcoal-light">Total Products</span>
+              <span className="text-sm font-medium text-charcoal">{summary.revenueByApp.length}</span>
+            </div>
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-sm text-charcoal-light">Top Product</span>
+              <span className="text-sm font-medium text-charcoal">
+                {summary.revenueByApp.length > 0 ? summary.revenueByApp[0].app_name : 'N/A'}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -215,8 +254,9 @@ const FinanceDashboard: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-charcoal">Recent Invoices</h3>
             </div>
-            <a href="#" className="text-royal-blue hover:text-sky-blue text-sm font-medium">
+            <a href="#" className="text-royal-blue hover:text-sky-blue text-sm font-medium flex items-center">
               View All
+              <ArrowRight className="h-4 w-4 ml-1" />
             </a>
           </div>
           
@@ -276,6 +316,23 @@ const FinanceDashboard: React.FC = () => {
               );
             })}
           </div>
+          
+          <div className="mt-6 pt-4 border-t border-light-gray">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-charcoal-light">Total Invoices</p>
+                <p className="font-semibold text-charcoal">{invoices.length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-charcoal-light">Paid</p>
+                <p className="font-semibold text-green-600">{invoices.filter(i => i.status === 'paid').length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-charcoal-light">Outstanding</p>
+                <p className="font-semibold text-blue-600">{invoices.filter(i => i.status === 'sent' || i.status === 'overdue').length}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Recent Payments */}
@@ -287,8 +344,9 @@ const FinanceDashboard: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-charcoal">Recent Payments</h3>
             </div>
-            <a href="#" className="text-royal-blue hover:text-sky-blue text-sm font-medium">
+            <a href="#" className="text-royal-blue hover:text-sky-blue text-sm font-medium flex items-center">
               View All
+              <ArrowRight className="h-4 w-4 ml-1" />
             </a>
           </div>
           
@@ -346,19 +404,138 @@ const FinanceDashboard: React.FC = () => {
               );
             })}
           </div>
+          
+          <div className="mt-6 pt-4 border-t border-light-gray">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-charcoal-light">Total Payments</p>
+                <p className="font-semibold text-charcoal">{payments.length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-charcoal-light">Completed</p>
+                <p className="font-semibold text-green-600">{payments.filter(p => p.status === 'completed').length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-charcoal-light">Failed</p>
+                <p className="font-semibold text-red-600">{payments.filter(p => p.status === 'failed').length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Financial Health Indicators */}
+      <div className="card p-6">
+        <div className="flex items-center mb-6">
+          <div className="p-3 bg-gradient-to-br from-royal-blue to-sky-blue rounded-xl mr-4">
+            <BarChart3 className="h-6 w-6 text-soft-white" />
+          </div>
+          <h3 className="text-xl font-bold text-charcoal">Financial Health Indicators</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-light-gray rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-charcoal">MRR Growth</h4>
+              <div className="flex items-center text-green-600">
+                <ArrowUpRight className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">+12.5%</span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                <TrendingUp className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-charcoal">${mrr.toLocaleString()}</p>
+                <p className="text-xs text-charcoal-light">Monthly recurring revenue</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-light-gray rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-charcoal">Collection Rate</h4>
+              <div className="flex items-center text-green-600">
+                <ArrowUpRight className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">+5.2%</span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                <CheckCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-charcoal">92.8%</p>
+                <p className="text-xs text-charcoal-light">Of invoices collected</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-light-gray rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-charcoal">Average Invoice</h4>
+              <div className="flex items-center text-green-600">
+                <ArrowUpRight className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">+8.7%</span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                <Receipt className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-charcoal">
+                  ${invoices.length > 0 
+                    ? Math.round(invoices.reduce((sum, inv) => sum + inv.total_amount, 0) / invoices.length) 
+                    : 0}
+                </p>
+                <p className="text-xs text-charcoal-light">Per invoice</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-light-gray rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-charcoal">Overdue Rate</h4>
+              <div className="flex items-center text-red-600">
+                <ArrowDownRight className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">-3.1%</span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-charcoal">
+                  {invoices.length > 0 
+                    ? Math.round(invoices.filter(inv => inv.status === 'overdue').length / invoices.length * 100) 
+                    : 0}%
+                </p>
+                <p className="text-xs text-charcoal-light">Overdue invoices</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Upcoming Due Invoices */}
       <div className="card p-6">
-        <div className="flex items-center mb-6">
-          <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mr-4">
-            <Calendar className="h-6 w-6 text-soft-white" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mr-4">
+              <Calendar className="h-6 w-6 text-soft-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-charcoal">Upcoming Due Invoices</h3>
+              <p className="text-charcoal-light">Invoices due in the next 7 days</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-charcoal">Upcoming Due Invoices</h3>
-            <p className="text-charcoal-light">Invoices due in the next 7 days</p>
-          </div>
+          <a href="#" className="text-royal-blue hover:text-sky-blue text-sm font-medium flex items-center">
+            View All Invoices
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </a>
         </div>
         
         {dueInvoices.length > 0 ? (

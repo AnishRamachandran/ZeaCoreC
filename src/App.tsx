@@ -23,11 +23,21 @@ import PaymentsManagement from './components/finance/PaymentsManagement';
 import RefundsManagement from './components/finance/RefundsManagement';
 import InvoiceDetails from './components/finance/InvoiceDetails';
 import PaymentDetails from './components/finance/PaymentDetails';
+import FinanceDashboard from './components/finance/FinanceDashboard';
+import TicketModule from './components/tickets/TicketModule';
+import InvoicesManagement from './components/finance/InvoicesManagement';
+import PaymentsManagement from './components/finance/PaymentsManagement';
+import RefundsManagement from './components/finance/RefundsManagement';
+import InvoiceDetails from './components/finance/InvoiceDetails';
+import PaymentDetails from './components/finance/PaymentDetails';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
@@ -74,6 +84,38 @@ function App() {
         return <FeatureControl />;
       case 'analytics':
         return <Analytics />;
+      case 'finance':
+        return <FinanceDashboard />;
+      case 'invoices':
+        return <InvoicesManagement onInvoiceSelect={(invoiceId) => {
+          setSelectedInvoiceId(invoiceId);
+          setActiveTab('invoice-details');
+        }} />;
+      case 'invoice-details':
+        return <InvoiceDetails 
+          invoiceId={selectedInvoiceId} 
+          onBack={() => {
+            setActiveTab('invoices');
+            setSelectedInvoiceId(null);
+          }}
+        />;
+      case 'payments':
+        return <PaymentsManagement onPaymentSelect={(paymentId) => {
+          setSelectedPaymentId(paymentId);
+          setActiveTab('payment-details');
+        }} />;
+      case 'payment-details':
+        return <PaymentDetails 
+          paymentId={selectedPaymentId} 
+          onBack={() => {
+            setActiveTab('payments');
+            setSelectedPaymentId(null);
+          }}
+        />;
+      case 'refunds':
+        return <RefundsManagement />;
+      case 'tickets':
+        return <TicketModule />;
       case 'invoices':
         return <InvoicesManagement onInvoiceSelect={(invoiceId) => {
           setSelectedInvoiceId(invoiceId);
