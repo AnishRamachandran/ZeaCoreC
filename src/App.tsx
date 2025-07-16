@@ -31,7 +31,6 @@ function App() {
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
   const renderContent = () => {
     switch (activeTab) {

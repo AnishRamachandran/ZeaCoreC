@@ -5,7 +5,6 @@ import StatusIcon from './common/StatusIcon';
 
 const Analytics: React.FC = () => {
   const { apps, loading: appsLoading } = useApps();
-  const { customers, loading: customersLoading } = useCustomers();
   const { subscriptions, loading: subscriptionsLoading } = useCustomerSubscriptions();
   const { payments, loading: paymentsLoading } = usePayments();
 
