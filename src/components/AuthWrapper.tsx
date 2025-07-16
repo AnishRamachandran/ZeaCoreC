@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Loader2, LogIn, Package, Bell, User as UserIcon, Settings, LogOut, Shield } from 'lucide-react';
-import { useCurrentUserProfile } from '../hooks/useUserManagement';
-import { usePendingUsers } from '../hooks/useUserManagement'; 
+import { useCurrentUserProfile } from '../hooks/useUserManagement'; 
 import Avatar from './common/Avatar';
 import { secureStorage } from '../lib/secureStorage';
 import ZeaCoreLogo from './logos/ZeaCoreLogo';
 import { useToast } from '../context/ToastContext';
+import { useCustomerUser } from '../hooks/useCustomerUser';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -33,8 +33,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
 
   // Get current user profile and pending users count
   const { profile: userProfile } = useCurrentUserProfile();
-  const { pendingUsers, loading: pendingLoading } = usePendingUsers();
   const { showToast } = useToast();
+  const { customerUser } = useCustomerUser();
 
   // Load saved credentials on component mount
   useEffect(() => {
@@ -172,21 +172,13 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
 
   // Mock notifications data
   const notifications = [
-    ...(pendingUsers.length > 0 ? [{
-      id: 'pending-users',
-      title: 'User Approval Required',
-      message: `${pendingUsers.length} user${pendingUsers.length > 1 ? 's' : ''} pending approval`,
-      time: 'Just now',
-      unread: true,
-      type: 'approval'
-    }] : []),
     { id: 1, title: 'New subscription', message: 'TechCorp Solutions upgraded to Pro plan', time: '2 min ago', unread: true },
     { id: 2, title: 'Payment received', message: '$149 payment from CloudTech Systems', time: '15 min ago', unread: true },
     { id: 3, title: 'Trial expiring', message: 'Innovate Labs trial ends in 3 days', time: '1 hour ago', unread: false },
     { id: 4, title: 'System update', message: 'Maintenance scheduled for tonight', time: '2 hours ago', unread: false },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length + (pendingUsers.length > 0 ? 1 : 0);
+  const unreadCount = notifications.filter(n => n.unread).length;
 
   // Get display name - prefer profile first name, fallback to email username
   const getDisplayName = () => {
@@ -228,14 +220,14 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
                   size="lg" 
                   variant="vertical" 
                   showTagline={true}
-                  className="text-charcoal"
+                  className="text-royal-blue"
                 />
               </div>
               <h2 className="text-3xl font-bold text-charcoal mb-2">
-                {isSignUp ? 'Create Account' : 'Welcome Back'}
+                {isSignUp ? 'Create Customer Account' : 'Customer Login'}
               </h2>
               <p className="text-charcoal-light">
-                {isSignUp ? 'Join the ZeaCore Platform' : 'Sign in to your account'}
+                {isSignUp ? 'Join our Customer Portal' : 'Sign in to your customer portal'}
               </p>
             </div>
             
@@ -347,7 +339,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
                 ) : (
                   <>
                     <LogIn className="h-5 w-5 mr-2" />
-                    {isSignUp ? 'Create Account' : 'Sign In'}
+                    {isSignUp ? 'Create Account' : 'Customer Sign In'}
                   </>
                 )}
               </button>
@@ -388,7 +380,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
             <ZeaCoreLogo 
               size="lg" 
               variant="horizontal" 
-              showTagline={false}
+              showTagline={true}
               className="text-soft-white"
             />
           </div>
@@ -490,13 +482,13 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
                     <div className="flex items-center">
                       <Avatar
                         src={userProfile?.avatar_url}
-                        name={getFullDisplayName()}
+                        name={customerUser?.customer?.company || getFullDisplayName()}
                         size="md"
                         className="mr-3"
                       />
                       <div>
                         <p className="font-medium text-charcoal text-sm">
-                          {getFullDisplayName()}
+                          {customerUser?.customer?.company || getFullDisplayName()}
                         </p>
                         <p className="text-xs text-charcoal-light">{user.email}</p>
                       </div>
@@ -515,14 +507,9 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children, onProfileClick }) =
                     <button className="w-full flex items-center px-4 py-3 text-charcoal-light hover:text-royal-blue hover:bg-sky-blue hover:bg-opacity-10 transition-all text-left">
                       <Shield className="h-4 w-4 mr-3" />
                       <span className="text-sm font-medium">Role</span>
-                      <span className="ml-auto text-xs bg-royal-blue text-soft-white px-2 py-1 rounded-full">
-                        {userProfile?.role?.name || 'Admin'}
+                      <span className="ml-auto text-xs bg-green-600 text-soft-white px-2 py-1 rounded-full">
+                        Customer
                       </span>
-                    </button>
-                    
-                    <button className="w-full flex items-center px-4 py-3 text-charcoal-light hover:text-royal-blue hover:bg-sky-blue hover:bg-opacity-10 transition-all text-left">
-                      <Settings className="h-4 w-4 mr-3" />
-                      <span className="text-sm font-medium">Settings</span>
                     </button>
                   </div>
                   

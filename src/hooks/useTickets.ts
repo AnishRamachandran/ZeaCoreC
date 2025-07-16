@@ -363,6 +363,7 @@ export function useCreateTicket() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { customerUser } = useCustomerUser();
 
   const createTicket = async (ticketData: {
     title: string;
@@ -379,6 +380,13 @@ export function useCreateTicket() {
       setLoading(true);
       setError(null);
       setSuccess(false);
+
+      // If no customer_id is provided, use the current customer's ID
+      const customer_id = ticketData.customer_id || customerUser?.customer_id;
+      
+      if (!customer_id) {
+        throw new Error('No customer ID available. Please try again later.');
+      }
       
       const { data, error } = await supabase
         .from('tickets')
@@ -387,7 +395,7 @@ export function useCreateTicket() {
           description: ticketData.description || null,
           status: ticketData.status || 'open',
           priority: ticketData.priority || 'medium',
-          customer_id: ticketData.customer_id || null,
+          customer_id: customer_id,
           assigned_to: ticketData.assigned_to || null,
           app_id: ticketData.app_id || null,
           external_id: ticketData.external_id || null,
