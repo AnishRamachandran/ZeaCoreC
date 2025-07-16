@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Shield, Search, User, Package, Loader2, Save, CheckCircle, Settings, DollarSign, Calendar, Building, CreditCard, Clock, Users, Star } from 'lucide-react';
 import { useApps, useCustomers, useCustomerSubscriptions } from '../hooks/useSupabaseData';
 import { useCustomerFeatureAccess } from '../hooks/useCustomerFeatureAccess';
@@ -8,12 +8,12 @@ import StatusIcon from './common/StatusIcon';
 
 const FeatureControl: React.FC = () => {
   const { customerUser } = useCustomerUser();
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [selectedAppId, setSelectedAppId] = useState('');
-  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [pendingChanges, setPendingChanges] = useState<{[key: string]: boolean}>({});
+  const [selectedCustomerId, setSelectedCustomerId] = React.useState<string>('');
+  const [selectedAppId, setSelectedAppId] = React.useState('');
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  const [saveSuccess, setSaveSuccess] = React.useState(false);
+  const [pendingChanges, setPendingChanges] = React.useState<{[key: string]: boolean}>({});
   
   const { apps, loading: appsLoading } = useApps();
   const { customers, loading: customersLoading } = useCustomers();
@@ -26,7 +26,7 @@ const FeatureControl: React.FC = () => {
   const loading = appsLoading || customersLoading || subscriptionsLoading;
 
   // Set the customer ID when customerUser is loaded
-  useEffect(() => {
+  React.useEffect(() => {
     if (customerUser?.customer_id) {
       setSelectedCustomerId(customerUser.customer_id);
     }
