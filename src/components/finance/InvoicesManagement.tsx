@@ -21,6 +21,7 @@ import { useInvoices, useUpdateInvoiceStatus } from '../../hooks/useFinance';
 import CreateInvoiceForm from './forms/CreateInvoiceForm';
 import StatusIcon from '../common/StatusIcon';
 import CompanyLogo from '../common/CompanyLogo';
+import { useCustomerUser } from '../../hooks/useCustomerUser';
 
 interface InvoicesManagementProps {
   onInvoiceSelect: (invoiceId: string) => void;
@@ -30,9 +31,9 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const { invoices, loading, error, refetch } = useInvoices();
   const { updateInvoiceStatus, loading: updateLoading } = useUpdateInvoiceStatus();
+  const { customerUser } = useCustomerUser();
 
   if (loading) {
     return (
@@ -52,6 +53,11 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
   }
 
   const filteredInvoices = invoices.filter(invoice => {
+    // Only show invoices for the current customer
+    if (customerUser && invoice.customer_id !== customerUser.customer_id) {
+      return false;
+    }
+    
     const matchesSearch = 
       invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customer_company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -121,16 +127,9 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-charcoal">Invoices</h1>
-          <p className="text-charcoal-light mt-2">Manage and track all customer invoices</p>
+          <h1 className="text-3xl font-bold text-charcoal">Your Invoices</h1>
+          <p className="text-charcoal-light mt-2">View and manage your invoices</p>
         </div>
-        <button 
-          onClick={() => setShowCreateForm(true)}
-          className="btn-primary flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Create Invoice
-        </button>
       </div>
 
       {/* Summary Cards */}
@@ -272,13 +271,13 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <CompanyLogo 
-                        companyName={invoice.customer_company || ''} 
+                        companyName={customerUser?.customer?.company || invoice.customer_company || ''} 
                         size="sm" 
                         className="mr-3"
                       />
                       <div>
-                        <div className="text-sm font-medium text-charcoal">{invoice.customer_company}</div>
-                        <div className="text-xs text-charcoal-light">{invoice.customer_name}</div>
+                        <div className="text-sm font-medium text-charcoal">{customerUser?.customer?.company || invoice.customer_company}</div>
+                        <div className="text-xs text-charcoal-light">{customerUser?.customer?.name || invoice.customer_name}</div>
                       </div>
                     </div>
                   </td>
@@ -337,24 +336,10 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
                         <Download className="h-4 w-4" />
                       </button>
                       {invoice.status === 'draft' && (
-                        <button 
-                          onClick={() => handleStatusChange(invoice.id, 'sent')}
-                          disabled={updateLoading}
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all"
-                          title="Mark as Sent"
-                        >
-                          <Send className="h-4 w-4" />
-                        </button>
+                        <></>
                       )}
                       {invoice.status === 'sent' && (
-                        <button 
-                          onClick={() => handleStatusChange(invoice.id, 'paid')}
-                          disabled={updateLoading}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50 p-2 rounded-lg transition-all"
-                          title="Mark as Paid"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </button>
+                        <></>
                       )}
                     </div>
                   </td>
@@ -370,26 +355,13 @@ const InvoicesManagement: React.FC<InvoicesManagementProps> = ({ onInvoiceSelect
           <div className="w-20 h-20 bg-light-gray rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Receipt className="h-10 w-10 text-charcoal-light" />
           </div>
-          <h3 className="text-xl font-semibold text-charcoal mb-2">No invoices found</h3>
+          <h3 className="text-xl font-semibold text-charcoal mb-2">No invoices found for your account</h3>
           <p className="text-charcoal-light">
-            {invoices.length === 0 
-              ? 'Create your first invoice to get started'
-              : 'Try adjusting your search or filter criteria'
-            }
+            {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
+              ? 'Try adjusting your search or filter criteria'
+              : 'You don\'t have any invoices yet'}
           </p>
         </div>
-      )}
-
-      {/* Create Invoice Modal */}
-      {showCreateForm && (
-        <CreateInvoiceForm
-          isOpen={showCreateForm}
-          onClose={() => setShowCreateForm(false)}
-          onSuccess={() => {
-            setShowCreateForm(false);
-            refetch();
-          }}
-        />
       )}
     </div>
   );

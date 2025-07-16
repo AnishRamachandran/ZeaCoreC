@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Database } from '../types/database';
+import { useCustomerUser } from './useCustomerUser';
 
 type Tables = Database['public']['Tables'];
 
@@ -111,19 +112,26 @@ export function useCustomerSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { customerUser } = useCustomerUser();
 
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('customer_subscriptions')
         .select(`
           *,
           apps!inner(name, logo_url),
           subscription_plans!inner(name, is_popular, icon_url),
           customers!inner(name, company, logo_url)
-        `)
-        .order('created_at', { ascending: false });
+        `);
+      
+      // Filter by customer ID if available
+      if (customerUser?.customer_id) {
+        query = query.eq('customer_id', customerUser.customer_id);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       
@@ -149,7 +157,7 @@ export function useCustomerSubscriptions() {
 
   useEffect(() => {
     fetchSubscriptions();
-  }, []);
+  }, [customerUser?.customer_id]);
 
   return { subscriptions, loading, error, refetch: fetchSubscriptions };
 }

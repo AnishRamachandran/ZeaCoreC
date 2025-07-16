@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useCustomerUser } from './useCustomerUser';
 
 export interface Invoice {
   id: string;
@@ -106,18 +107,25 @@ export function useInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { customerUser } = useCustomerUser();
 
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('invoices')
         .select(`
           *,
           customers!inner(name, company, email),
           customer_subscriptions(subscription_plans(name), apps(name))
-        `)
-        .order('issue_date', { ascending: false });
+        `);
+      
+      // Filter by customer ID if available
+      if (customerUser?.customer_id) {
+        query = query.eq('customer_id', customerUser.customer_id);
+      }
+      
+      const { data, error } = await query.order('issue_date', { ascending: false });
 
       if (error) throw error;
       
@@ -141,7 +149,7 @@ export function useInvoices() {
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [customerUser?.customer_id]);
 
   return { invoices, loading, error, refetch: fetchInvoices };
 }

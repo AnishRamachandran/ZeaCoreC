@@ -3,6 +3,7 @@ import { X, TicketIcon, Building, Calendar, Loader2 } from 'lucide-react';
 import { useCustomers, useApps } from '../../hooks/useSupabaseData';
 import { useUserProfiles } from '../../hooks/useUserManagement';
 import { useCreateTicket } from '../../hooks/useTickets';
+import { useCustomerUser } from '../../hooks/useCustomerUser';
 
 interface AddTicketFormProps {
   isOpen: boolean;
@@ -23,18 +24,29 @@ const AddTicketForm: React.FC<AddTicketFormProps> = ({
   const { apps } = useApps();
   const { profiles } = useUserProfiles();
   const { createTicket, loading, error, success } = useCreateTicket();
+  const { customerUser } = useCustomerUser();
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     status: 'open',
     priority: 'medium',
-    customer_id: preselectedCustomerId || '',
+    customer_id: preselectedCustomerId || customerUser?.customer_id || '',
     assigned_to: '',
     app_id: preselectedAppId || '',
     external_id: '',
     due_date: ''
   });
+  
+  // Update customer_id when customerUser changes
+  useEffect(() => {
+    if (customerUser?.customer_id && !preselectedCustomerId) {
+      setFormData(prev => ({
+        ...prev,
+        customer_id: customerUser.customer_id
+      }));
+    }
+  }, [customerUser, preselectedCustomerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,40 +191,36 @@ const AddTicketForm: React.FC<AddTicketFormProps> = ({
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
                   <Building className="h-4 w-4 inline mr-1" />
-                  Customer
+                  Your Company
                 </label>
-                <select
+                <input
+                  type="text"
+                  value={customerUser?.customer?.company || ''}
+                  disabled
+                  className="input-field bg-gray-100"
+                />
+                <input
+                  type="hidden"
                   name="customer_id"
                   value={formData.customer_id}
-                  onChange={handleChange}
-                  className="input-field"
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map(customer => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.company} ({customer.name})
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
                   Assigned To
                 </label>
-                <select
+                <input
+                  type="text"
+                  value="Support Team"
+                  disabled
+                  className="input-field bg-gray-100"
+                />
+                <input
+                  type="hidden"
                   name="assigned_to"
-                  value={formData.assigned_to}
-                  onChange={handleChange}
-                  className="input-field"
-                >
-                  <option value="">Unassigned</option>
-                  {profiles.map(profile => (
-                    <option key={profile.id} value={profile.id}>
-                      {profile.first_name} {profile.last_name}
-                    </option>
-                  ))}
-                </select>
+                  value=""
+                />
               </div>
 
               <div>
@@ -249,25 +257,7 @@ const AddTicketForm: React.FC<AddTicketFormProps> = ({
           </div>
 
           {/* External Reference */}
-          <div>
-            <h3 className="text-lg font-semibold text-charcoal mb-4">External Reference</h3>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                External ID (PixelDesk)
-              </label>
-              <input
-                type="text"
-                name="external_id"
-                value={formData.external_id}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="e.g., PD-1234"
-              />
-              <p className="text-xs text-charcoal-light mt-1">
-                Reference ID from external ticketing system
-              </p>
-            </div>
-          </div>
+          {/* External Reference section removed for customer portal */}
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -297,7 +287,7 @@ const AddTicketForm: React.FC<AddTicketFormProps> = ({
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                'Create Ticket'
+                'Submit Support Request'
               )}
             </button>
           </div>

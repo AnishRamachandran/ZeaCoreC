@@ -1,22 +1,15 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  Package, 
   Users, 
   CreditCard, 
-  Settings, 
-  BarChart3, 
   Shield,
   FileText,
-  UserCog,
-  Sliders,
-  MapPin,
   DollarSign,
   Receipt,
-  CreditCard as CreditCardIcon,
-  RefreshCcw,
   TicketIcon
 } from 'lucide-react';
+import { useCustomerUser } from '../hooks/useCustomerUser';
 
 interface SidebarProps {
   activeTab: string;
@@ -24,9 +17,10 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
+  const { customerUser } = useCustomerUser();
+
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'customer-dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
     { 
       id: 'finance', 
@@ -34,31 +28,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       icon: DollarSign,
       submenu: [
         { id: 'invoices', label: 'Invoices', icon: Receipt },
-        { id: 'payments', label: 'Payments', icon: CreditCardIcon },
-        { id: 'refunds', label: 'Refunds', icon: RefreshCcw }
       ]
     },
     { id: 'tickets', label: 'Tickets', icon: TicketIcon },
     { id: 'feature-control', label: 'Feature Control', icon: Shield },
-    { 
-      id: 'apps', 
-      label: 'Apps', 
-      icon: Package,
-      submenu: [
-        { id: 'features', label: 'Features', icon: Sliders }
-      ]
-    },
-    { 
-      id: 'plans', 
-      label: 'Plans', 
-      icon: FileText,
-      submenu: [
-        { id: 'map-features', label: 'Map Features', icon: MapPin }
-      ]
-    },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'users', label: 'User Management', icon: UserCog },
-    { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
   // System status - you can modify these values based on actual system monitoring
@@ -126,26 +99,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       <div className="mt-8">
         <div className="bg-gradient-to-r from-royal-blue-dark to-royal-blue rounded-xl p-4 border border-sky-blue border-opacity-30">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-              <span className="text-sm font-medium text-soft-white">System Uptime</span>
-            </div>
-            <div className="bg-sky-blue bg-opacity-20 rounded-lg px-3 py-1">
-              <span className="text-sm font-bold text-soft-white">{systemUptime}%</span>
+            <div className="flex items-center text-soft-white">
+              <Users className="h-5 w-5 mr-2" />
+              <span className="text-sm font-medium">Customer Portal</span>
             </div>
           </div>
           
-          {/* Show issues only if they exist */}
-          {systemIssues.length > 0 && (
-            <div className="space-y-1">
-              {systemIssues.map((issue, index) => (
-                <div key={index} className="flex items-center">
-                  <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-                  <p className="text-xs text-red-200">{issue}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="text-xs text-sky-blue-light mt-2">
+            {customerUser?.customer?.company || 'Loading...'}
+          </div>
         </div>
       </div>
 
@@ -153,13 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       <div className="mt-6 pt-4 border-t border-charcoal-light">
         <div className="text-center">
           <p className="text-xs text-gray-400">
-            Powered by{' '}
-            <span className="font-semibold text-sky-blue">
-              Zealogics
-              <span className="inline-flex items-center justify-center w-3 h-3 ml-1 text-xs border border-sky-blue rounded-full text-sky-blue">
-                R
-              </span>
-            </span>
+            Customer Portal v1.0
           </p>
         </div>
       </div>

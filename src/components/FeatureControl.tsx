@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Shield, Search, User, Package, Loader2, Save, CheckCircle, Settings, DollarSign, Calendar, Building, CreditCard, Clock, Users, Star } from 'lucide-react';
 import { useApps, useCustomers, useCustomerSubscriptions } from '../hooks/useSupabaseData';
 import { useCustomerFeatureAccess } from '../hooks/useCustomerFeatureAccess';
+import { useCustomerUser } from '../hooks/useCustomerUser';
 import CompanyLogo from './common/CompanyLogo';
 import StatusIcon from './common/StatusIcon';
 
 const FeatureControl: React.FC = () => {
-  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const { customerUser } = useCustomerUser();
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [selectedAppId, setSelectedAppId] = useState('');
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState('');
   const [saving, setSaving] = useState(false);
@@ -22,6 +24,13 @@ const FeatureControl: React.FC = () => {
   );
 
   const loading = appsLoading || customersLoading || subscriptionsLoading;
+
+  // Set the customer ID when customerUser is loaded
+  useEffect(() => {
+    if (customerUser?.customer_id) {
+      setSelectedCustomerId(customerUser.customer_id);
+    }
+  }, [customerUser]);
 
   if (loading) {
     return (
@@ -96,9 +105,9 @@ const FeatureControl: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold text-charcoal mb-2">Feature Control Center</h1>
+        <h1 className="text-4xl font-bold text-charcoal mb-2">Your Features</h1>
         <p className="text-charcoal-light text-lg">
-          Manage customer-specific feature access for their subscriptions
+          Manage your subscription features
         </p>
       </div>
 
@@ -114,62 +123,13 @@ const FeatureControl: React.FC = () => {
 
       {/* Selection Boxes - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Customer Selection */}
+        {/* Product Selection */}
         <div className="card p-6">
           <div className="flex items-center mb-4">
             <div className="w-8 h-8 bg-royal-blue text-soft-white rounded-full flex items-center justify-center font-bold mr-3">
               1
             </div>
-            <h2 className="text-lg font-bold text-charcoal">Customer</h2>
-          </div>
-          
-          <div className="relative mb-4">
-            <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-charcoal-light h-5 w-5" />
-            <select
-              value={selectedCustomerId}
-              onChange={(e) => handleCustomerChange(e.target.value)}
-              className="input-field pl-12 w-full"
-            >
-              <option value="">Choose customer...</option>
-              {customers.map(customer => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.company}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {selectedCustomer && (
-            <div className="p-3 bg-light-gray rounded-xl">
-              <div className="flex items-center mb-2">
-                <CompanyLogo 
-                  src={selectedCustomer.logo_url} 
-                  companyName={selectedCustomer.company} 
-                  size="sm" 
-                  className="mr-3"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-charcoal text-sm truncate">{selectedCustomer.company}</h3>
-                  <p className="text-xs text-charcoal-light truncate">{selectedCustomer.name}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <StatusIcon status={selectedCustomer.status} type="customer" size="sm" />
-                <span className="text-xs text-charcoal-light">
-                  {customerSubscriptions.length} subscription(s)
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Product Selection */}
-        <div className="card p-6">
-          <div className="flex items-center mb-4">
-            <div className="w-8 h-8 bg-royal-blue text-soft-white rounded-full flex items-center justify-center font-bold mr-3">
-              2
-            </div>
-            <h2 className="text-lg font-bold text-charcoal">Product</h2>
+            <h2 className="text-lg font-bold text-charcoal">Select Product</h2>
           </div>
           
           <div className="relative mb-4">
@@ -205,9 +165,9 @@ const FeatureControl: React.FC = () => {
         <div className="card p-6">
           <div className="flex items-center mb-4">
             <div className="w-8 h-8 bg-royal-blue text-soft-white rounded-full flex items-center justify-center font-bold mr-3">
-              3
+              2
             </div>
-            <h2 className="text-lg font-bold text-charcoal">Plan</h2>
+            <h2 className="text-lg font-bold text-charcoal">Select Plan</h2>
           </div>
           
           <div className="relative mb-4">
@@ -523,15 +483,9 @@ const FeatureControl: React.FC = () => {
 
       {/* Instructions */}
       {!selectedCustomerId && (
-        <div className="text-center py-16">
-          <div className="w-20 h-20 bg-light-gray rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield className="h-10 w-10 text-charcoal-light" />
-          </div>
-          <h3 className="text-xl font-semibold text-charcoal mb-2">Customer Feature Control</h3>
-          <p className="text-charcoal-light max-w-md mx-auto">
-            Select a customer, choose their subscribed product, pick the specific plan, 
-            then manage individual feature access with granular control.
-          </p>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-royal-blue" />
+          <span className="ml-2 text-charcoal">Loading your customer data...</span>
         </div>
       )}
     </div>

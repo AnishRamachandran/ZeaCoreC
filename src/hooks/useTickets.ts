@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useCustomerUser } from './useCustomerUser';
 
 export interface Ticket {
   id: string;
@@ -67,21 +68,28 @@ export function useTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { customerUser } = useCustomerUser();
 
   const fetchTickets = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('tickets')
         .select(`
           *,
           customers(name, company),
           user_profiles!tickets_assigned_to_fkey(first_name, last_name, avatar_url),
           apps(name)
-        `)
-        .order('created_at', { ascending: false });
+        `);
+      
+      // Filter by customer ID if available
+      if (customerUser?.customer_id) {
+        query = query.eq('customer_id', customerUser.customer_id);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       
@@ -106,7 +114,7 @@ export function useTickets() {
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [customerUser?.customer_id]);
 
   return { tickets, loading, error, refetch: fetchTickets };
 }

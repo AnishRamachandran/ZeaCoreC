@@ -23,6 +23,7 @@ import { useCustomers, useApps } from '../../hooks/useSupabaseData';
 import { useCurrentUserProfile } from '../../hooks/useUserManagement';
 import AddTicketForm from './AddTicketForm';
 import { useToast } from '../../context/ToastContext';
+import { useCustomerUser } from '../../hooks/useCustomerUser';
 
 interface TicketListProps {
   onTicketSelect: (ticketId: string) => void;
@@ -32,17 +33,16 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
-  const [customerFilter, setCustomerFilter] = useState('all');
   const [appFilter, setAppFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [sortField, setSortField] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const { tickets, loading, error, refetch } = useTickets();
-  const { customers } = useCustomers();
   const { apps } = useApps();
   const { profile } = useCurrentUserProfile();
   const { showToast } = useToast();
+  const { customerUser } = useCustomerUser();
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -55,6 +55,11 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
 
   const sortedAndFilteredTickets = [...tickets]
     .filter(ticket => {
+      // Only show tickets for the current customer
+      if (customerUser && ticket.customer_id !== customerUser.customer_id) {
+        return false;
+      }
+      
       const matchesSearch = 
         ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,10 +68,9 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
       
       const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
       const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
-      const matchesCustomer = customerFilter === 'all' || ticket.customer_id === customerFilter;
       const matchesApp = appFilter === 'all' || ticket.app_id === appFilter;
       
-      return matchesSearch && matchesStatus && matchesPriority && matchesCustomer && matchesApp;
+      return matchesSearch && matchesStatus && matchesPriority && matchesApp;
     })
     .sort((a, b) => {
       let comparison = 0;
@@ -174,8 +178,8 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-charcoal">Tickets</h1>
-          <p className="text-charcoal-light mt-2">Manage and track all support tickets</p>
+          <h1 className="text-3xl font-bold text-charcoal">Your Support Tickets</h1>
+          <p className="text-charcoal-light mt-2">Create and track your support requests</p>
         </div>
         <button 
           onClick={() => setShowAddForm(true)}
@@ -188,7 +192,7 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
 
       {/* Filters */}
       <div className="card p-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-charcoal-light h-5 w-5" />
             <input
@@ -223,18 +227,7 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
             <option value="medium">Medium</option>
             <option value="low">Low</option>
           </select>
-          
-          <select
-            value={customerFilter}
-            onChange={(e) => setCustomerFilter(e.target.value)}
-            className="input-field"
-          >
-            <option value="all">All Customers</option>
-            {customers.map(customer => (
-              <option key={customer.id} value={customer.id}>{customer.company}</option>
-            ))}
-          </select>
-          
+                    
           <select
             value={appFilter}
             onChange={(e) => setAppFilter(e.target.value)}
@@ -427,6 +420,7 @@ const TicketList: React.FC<TicketListProps> = ({ onTicketSelect }) => {
       <AddTicketForm
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
+        preselectedCustomerId={customerUser?.customer_id}
         onSuccess={handleAddSuccess}
       />
     </div>

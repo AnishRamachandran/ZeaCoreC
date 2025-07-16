@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Search, Calendar, DollarSign, User, Package, Loader2, Edit, Eye } from 'lucide-react';
+import { Search, Calendar, DollarSign, User, Package, Loader2, Eye } from 'lucide-react';
 import { useCustomerSubscriptions } from '../hooks/useSupabaseData';
-import AddSubscriptionForm from './forms/AddSubscriptionForm';
-import EditSubscriptionForm from './forms/EditSubscriptionForm';
+import { useCustomerUser } from '../hooks/useCustomerUser';
 import StatusIcon from './common/StatusIcon';
 import AppLogo from './common/AppLogo';
 import CompanyLogo from './common/CompanyLogo';
@@ -10,10 +9,8 @@ import CompanyLogo from './common/CompanyLogo';
 const SubscriptionsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
   const { subscriptions, loading, error, refetch } = useCustomerSubscriptions();
+  const { customerUser } = useCustomerUser();
 
   if (loading) {
     return (
@@ -33,6 +30,11 @@ const SubscriptionsManagement: React.FC = () => {
   }
 
   const filteredSubscriptions = subscriptions.filter(subscription => {
+    // Only show subscriptions for the current customer
+    if (customerUser && subscription.customer_id !== customerUser.customer_id) {
+      return false;
+    }
+    
     const matchesSearch = subscription.app_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          subscription.plan_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || subscription.status === statusFilter;
@@ -43,29 +45,13 @@ const SubscriptionsManagement: React.FC = () => {
     return billing === 'yearly' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800';
   };
 
-  const handleAddSuccess = () => {
-    refetch();
-  };
-  
-  const handleEditSubscription = (subscription: any) => {
-    setSelectedSubscription(subscription);
-    setShowEditForm(true);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Subscription Management</h1>
-          <p className="text-gray-600 mt-2">Monitor and manage all customer subscriptions</p>
+          <h1 className="text-3xl font-bold text-gray-900">Your Subscriptions</h1>
+          <p className="text-gray-600 mt-2">View and manage your active subscriptions</p>
         </div>
-        <button 
-          onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          New Subscription
-        </button>
       </div>
 
       {/* Summary Cards */}
@@ -252,13 +238,6 @@ const SubscriptionsManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
                       <button 
-                        onClick={() => handleEditSubscription(subscription)}
-                        className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                        title="Edit Subscription"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
                         className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
                         title="View Details"
                       >
@@ -276,26 +255,14 @@ const SubscriptionsManagement: React.FC = () => {
       {filteredSubscriptions.length === 0 && (
         <div className="text-center py-12">
           <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No subscriptions found</h3>
-          <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No subscriptions found for your account</h3>
+          <p className="text-gray-600">
+            {searchTerm || statusFilter !== 'all'
+              ? 'Try adjusting your search or filter criteria'
+              : 'You don\'t have any active subscriptions yet'}
+          </p>
         </div>
       )}
-
-      <AddSubscriptionForm
-        isOpen={showAddForm}
-        onClose={() => setShowAddForm(false)}
-        onSuccess={handleAddSuccess}
-      />
-      
-      <EditSubscriptionForm
-        isOpen={showEditForm}
-        onClose={() => setShowEditForm(false)}
-        onSuccess={() => {
-          setShowEditForm(false);
-          refetch();
-        }}
-        subscription={selectedSubscription}
-      />
     </div>
   );
 };
