@@ -26,6 +26,7 @@ interface TicketDashboardProps {
 const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) => {
   const { stats, loading: statsLoading } = useTicketStats();
   const { apps } = useApps();
+  const { customers } = useCustomers();
   const { customerUser } = useCustomerUser();
 
   if (statsLoading) {
