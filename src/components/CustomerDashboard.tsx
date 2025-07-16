@@ -26,6 +26,7 @@ import { useCustomers, useCustomerSubscriptions, usePayments, useApps } from '..
 import CompanyLogo from './common/CompanyLogo';
 import StatusIcon from './common/StatusIcon';
 import AppLogo from './common/AppLogo';
+import { useCustomerUser } from '../hooks/useCustomerUser';
 
 interface CustomerDashboardProps {
   customerId: string | null;
@@ -37,10 +38,14 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
   const { subscriptions, loading: subscriptionsLoading } = useCustomerSubscriptions();
   const { payments, loading: paymentsLoading } = usePayments();
   const { apps } = useApps();
+  const { customerUser } = useCustomerUser();
 
   const loading = customersLoading || subscriptionsLoading || paymentsLoading;
 
-  if (!customerId) {
+  // Use customerUser.customer_id as fallback if customerId is not provided
+  const effectiveCustomerId = customerId || customerUser?.customer_id;
+
+  if (!effectiveCustomerId) {
     return (
       <div className="text-center py-16">
         <AlertTriangle className="h-12 w-12 text-charcoal-light mx-auto mb-4" />
@@ -63,7 +68,7 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
     );
   }
 
-  const customer = customers.find(c => c.id === customerId);
+  const customer = customers.find(c => c.id === effectiveCustomerId);
   
   if (!customer) {
     return (
@@ -80,8 +85,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
   }
 
   // Filter data for this customer
-  const customerSubscriptions = subscriptions.filter(sub => sub.customer_id === customerId);
-  const customerPayments = payments.filter(payment => payment.customer_id === customerId);
+  const customerSubscriptions = subscriptions.filter(sub => sub.customer_id === effectiveCustomerId);
+  const customerPayments = payments.filter(payment => payment.customer_id === effectiveCustomerId);
 
   // Calculate metrics
   const totalSpent = customerPayments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -162,12 +167,13 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <button
+          {/* Remove back button for customer portal */}
+          {/* <button
             onClick={onBack}
             className="mr-4 p-2 text-charcoal-light hover:text-royal-blue hover:bg-sky-blue hover:bg-opacity-10 rounded-xl transition-all"
           >
             <ArrowLeft className="h-6 w-6" />
-          </button>
+          </button> */}
           <div className="flex items-center">
             <CompanyLogo 
               src={customer.logo_url} 
@@ -200,10 +206,10 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
             type="customer" 
             size="lg"
           />
-          <button className="btn-secondary flex items-center">
+          {/* <button className="btn-secondary flex items-center">
             <Edit className="h-4 w-4 mr-2" />
             Edit Customer
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -551,7 +557,7 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customerId, onBac
           <div className="text-center py-12">
             <CreditCard className="h-12 w-12 text-charcoal-light mx-auto mb-4" />
             <h3 className="text-lg font-medium text-charcoal mb-2">No Subscriptions</h3>
-            <p className="text-charcoal-light">This customer hasn't subscribed to any services yet</p>
+            <p className="text-charcoal-light">You haven't subscribed to any services yet</p>
           </div>
         )}
       </div>

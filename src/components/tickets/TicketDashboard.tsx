@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useTicketStats } from '../../hooks/useTickets';
 import { useCustomers, useApps } from '../../hooks/useSupabaseData';
+import { useCustomerUser } from '../../hooks/useCustomerUser';
 
 interface TicketDashboardProps {
   onViewAllTickets?: () => void;
@@ -24,8 +25,8 @@ interface TicketDashboardProps {
 
 const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) => {
   const { stats, loading: statsLoading } = useTicketStats();
-  const { customers } = useCustomers();
   const { apps } = useApps();
+  const { customerUser } = useCustomerUser();
 
   if (statsLoading) {
     return (
@@ -79,8 +80,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
   return (
     <div className="space-y-8">
       <div className="bg-gradient-to-r from-royal-blue to-sky-blue rounded-3xl p-8 text-soft-white">
-        <h1 className="text-4xl font-bold mb-3">Ticket Dashboard</h1>
-        <p className="text-sky-blue-light text-lg">Overview of all support tickets and their current status.</p>
+        <h1 className="text-4xl font-bold mb-3">Support Dashboard</h1>
+        <p className="text-sky-blue-light text-lg">Overview of your support tickets and their current status.</p>
       </div>
 
       {/* Key Metrics */}
@@ -157,7 +158,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
             <div className="p-3 bg-gradient-to-br from-royal-blue to-sky-blue rounded-xl mr-4">
               <PieChart className="h-6 w-6 text-soft-white" />
             </div>
-            <h3 className="text-xl font-bold text-charcoal">Status Distribution</h3>
+            <h3 className="text-xl font-bold text-charcoal">Your Tickets Status</h3>
           </div>
 
           <div className="space-y-4">
@@ -245,7 +246,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
             <div className="p-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl mr-4">
               <AlertTriangle className="h-6 w-6 text-soft-white" />
             </div>
-            <h3 className="text-xl font-bold text-charcoal">Priority Distribution</h3>
+            <h3 className="text-xl font-bold text-charcoal">Ticket Priorities</h3>
           </div>
 
           <div className="space-y-4">
@@ -333,7 +334,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
             <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mr-4">
               <Calendar className="h-6 w-6 text-soft-white" />
             </div>
-            <h3 className="text-xl font-bold text-charcoal">Upcoming Deadlines</h3>
+            <h3 className="text-xl font-bold text-charcoal">Ticket Deadlines</h3>
           </div>
 
           <div className="space-y-6">
@@ -409,14 +410,14 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Activity */}
+        {/* Recent Activity - Keep this section */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <div className="p-3 bg-gradient-to-br from-bright-cyan to-sky-blue rounded-xl mr-4">
                 <BarChart3 className="h-6 w-6 text-soft-white" />
               </div>
-              <h3 className="text-xl font-bold text-charcoal">Recent Activity</h3>
+              <h3 className="text-xl font-bold text-charcoal">Recent Ticket Activity</h3>
             </div>
             {onViewAllTickets && (
               <button 
@@ -448,68 +449,30 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ onViewAllTickets }) =
           </div>
         </div>
 
-        {/* Top Customers with Tickets */}
+        {/* Your Subscribed Apps */}
         <div className="card p-6">
           <div className="flex items-center mb-6">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mr-4">
-              <Building className="h-6 w-6 text-soft-white" />
+            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mr-4">
+              <Package className="h-6 w-6 text-soft-white" />
             </div>
-            <h3 className="text-xl font-bold text-charcoal">Top Customers with Tickets</h3>
+            <h3 className="text-xl font-bold text-charcoal">Your Subscribed Apps</h3>
           </div>
           
           <div className="space-y-4">
-            {topCustomersWithTickets.map((customer) => (
-              <div key={customer.id} className="flex items-center justify-between p-4 bg-light-gray rounded-xl hover:bg-gray-100 transition-colors">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-soft-white font-bold text-sm bg-gradient-to-br from-royal-blue to-sky-blue mr-3">
-                    {customer.company.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-charcoal">{customer.company}</p>
-                    <p className="text-sm text-charcoal-light">{customer.name}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-charcoal">{customer.ticketCount} tickets</p>
-                  <p className="text-xs text-charcoal-light">{customer.openTickets} open</p>
-                </div>
+            {customerUser?.customer_id && (
+              <div className="text-center py-4">
+                <p className="text-charcoal-light">
+                  View your subscribed apps in the Subscriptions tab
+                </p>
+                <button
+                  onClick={() => onViewAllTickets && onViewAllTickets()}
+                  className="btn-primary mt-4"
+                >
+                  View All Tickets
+                </button>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* Top Apps with Tickets */}
-      <div className="card p-6">
-        <div className="flex items-center mb-6">
-          <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mr-4">
-            <Package className="h-6 w-6 text-soft-white" />
-          </div>
-          <h3 className="text-xl font-bold text-charcoal">Top Apps with Tickets</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topAppsWithTickets.map((app) => (
-            <div key={app.id} className="p-4 bg-light-gray rounded-xl hover:bg-gray-100 transition-colors">
-              <div className="flex items-center mb-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-soft-white font-bold text-sm bg-gradient-to-br from-green-500 to-emerald-600 mr-3">
-                  {app.name.substring(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-semibold text-charcoal">{app.name}</p>
-                  <p className="text-sm text-charcoal-light">{app.category}</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-charcoal-light">
-                  <span className="font-medium text-charcoal">{app.ticketCount}</span> tickets
-                </div>
-                <div className="text-sm text-charcoal-light">
-                  <span className="font-medium text-charcoal">{app.openTickets}</span> open
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
