@@ -123,34 +123,6 @@ export function useCustomerUser() {
       setLoading(false);
     }
   };
-                setCustomerUser({
-                  ...newLink,
-                  customer: newLink.customers
-                });
-                return;
-              }
-            }
-          }
-        }
-        
-        console.error('Error fetching customer user:', error);
-        setError(error.message);
-        setCustomerUser(null);
-        return;
-      }
-      
-      setCustomerUser({
-        ...data,
-        customer: data.customers
-      });
-    } catch (err) {
-      console.error('Error in useCustomerUser hook:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setCustomerUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchCustomerUser();
