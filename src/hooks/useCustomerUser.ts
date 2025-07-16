@@ -39,13 +39,10 @@ export function useCustomerUser() {
         return;
       }
 
-      // Get customer user link
+      // Get customer user link (without nested customer data to avoid relationship issues)
       const { data, error } = await supabase
         .from('customer_users')
-        .select(`
-          *,
-          customers(*)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .single();
 
@@ -71,13 +68,61 @@ export function useCustomerUser() {
                   customer_id: customerData.id,
                   role: 'admin' // First user for a customer is admin
                 }])
-                .select(`
-                  *,
-                  customers(*)
-                `)
+                .select('*')
                 .single();
               
               if (!linkError && newLink) {
+                // Fetch customer data separately
+                const { data: customerInfo, error: customerInfoError } = await supabase
+                  .from('customers')
+                  .select('*')
+                  .eq('id', newLink.customer_id)
+                  .single();
+                
+                if (!customerInfoError && customerInfo) {
+                  setCustomerUser({
+                    ...newLink,
+                    customer: customerInfo
+                  });
+                  return;
+                }
+              }
+            }
+          }
+        }
+        
+        console.error('Error fetching customer user:', error);
+        setError(error.message);
+        setCustomerUser(null);
+        return;
+      }
+      
+      // Fetch customer data separately to avoid relationship issues
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', data.customer_id)
+        .single();
+      
+      if (customerError) {
+        console.error('Error fetching customer data:', customerError);
+        setError(customerError.message);
+        setCustomerUser(null);
+        return;
+      }
+      
+      setCustomerUser({
+        ...data,
+        customer: customerData
+      });
+    } catch (err) {
+      console.error('Error in useCustomerUser hook:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setCustomerUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
                 setCustomerUser({
                   ...newLink,
                   customer: newLink.customers
