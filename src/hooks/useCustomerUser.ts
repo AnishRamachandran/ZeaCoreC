@@ -113,20 +113,31 @@ export function useCustomerUser() {
       
       setCustomerUser({
         ...data,
-        customer: customerData
-      });
-    } catch (err) {
-      console.error('Error in useCustomerUser hook:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    // First check if the customer_users table exists by attempting a simple query
+    const { data, error } = await supabase
+      .from('customer_users')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
       setCustomerUser(null);
     } finally {
-      setLoading(false);
+      // If table doesn't exist, return null instead of throwing
+      if (error.code === '42P01') {
+        console.warn('customer_users table does not exist. User will be treated as non-customer user.');
+        return null;
+      }
+      throw error;
     }
   };
 
   useEffect(() => {
-    fetchCustomerUser();
-    
+    // Handle the case where table doesn't exist gracefully
+    if (error instanceof Error && error.message.includes('relation "public.customer_users" does not exist')) {
+      console.warn('customer_users table does not exist. User will be treated as non-customer user.');
+      return null;
+    }
+    console.error('Error fetching customer user:', error);
+    throw error;
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       fetchCustomerUser();
