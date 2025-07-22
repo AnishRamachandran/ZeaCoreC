@@ -51,6 +51,7 @@ export function useCustomerUser() {
         if (error.code === '42P01') {
           console.warn('customer_users table does not exist. User will be treated as non-customer user.');
           setCustomerUser(null);
+          setLoading(false);
           return;
         }
         
@@ -99,8 +100,12 @@ export function useCustomerUser() {
         }
         
         console.error('Error fetching customer user:', error);
-        setError(error.message);
+        // Don't set error for missing table, just log it
+        if (error.code !== '42P01') {
+          setError(error.message);
+        }
         setCustomerUser(null);
+        setLoading(false);
         return;
       }
       
