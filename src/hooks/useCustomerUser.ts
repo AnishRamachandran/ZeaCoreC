@@ -113,12 +113,15 @@ export function useCustomerUser() {
       
       setCustomerUser({
         ...data,
-    // First check if the customer_users table exists by attempting a simple query
-    const { data, error } = await supabase
-      .from('customer_users')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+        customer: customerData
+      });
+    } catch (error) {
+      // First check if the customer_users table exists by attempting a simple query
+      const { data, error: err } = await supabase
+        .from('customer_users')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
       setCustomerUser(null);
     } finally {
       // If table doesn't exist, return null instead of throwing
