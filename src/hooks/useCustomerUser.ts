@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
+
+// Track if we've already detected that the customer_users table doesn't exist
+let tableExists = true;
 export interface CustomerUser {
   id: string;
   user_id: string;
@@ -29,6 +32,12 @@ export function useCustomerUser() {
   const fetchCustomerUser = async () => {
     try {
       setLoading(true);
+    // If we've already detected the table doesn't exist, don't make the request
+    if (!tableExists) {
+      setLoading(false);
+      return;
+    }
+    
       setError(null);
       
       // Get current user
@@ -104,6 +113,7 @@ export function useCustomerUser() {
         if (error.code !== '42P01') {
           setError(error.message);
         }
+        tableExists = false; // Mark table as non-existent to prevent future requests
         setCustomerUser(null);
         setLoading(false);
         return;
@@ -137,6 +147,10 @@ export function useCustomerUser() {
   };
 
   useEffect(() => {
+    // Reset table existence check when user changes
+    if (user?.id) {
+      tableExists = true;
+    }
     fetchCustomerUser();
     
     // Subscribe to auth changes
